@@ -1,0 +1,32 @@
+{
+  "name": "pcrsystem",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "lint": "eslint . --ext .js",
+    "test": "jest",
+    "precommit": "npm run lint && npm test",
+    "prepare": "husky install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "pdf-lib": "^1.16.0",
+    "qrcode": "^1.4.4",
+    "sqlite3": "^5.0.2",
+    "uuidv4": "^6.2.12"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.24.2",
+    "husky": "^7.0.2",
+    "jest": "^27.2.5"
+  }
+}
