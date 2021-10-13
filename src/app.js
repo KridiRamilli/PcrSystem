@@ -17,11 +17,15 @@ app.get('/', (req, res) => {
   res.sendFile(`${staticDir}/index.html`);
 });
 
+app.get('/me:id', (req, res) => {
+  res.send('Me');
+});
+
 app.post('/generate', (req, res) => {
   const { patient } = req.body;
   if (patient) {
     fs.mkdir(
-      `PDF_TESTS/${patient}${Date.now()}`,
+      `PDF_TESTS/${patient}_${Date.now()}`,
       { recursive: true },
       (err) => {
         console.error(err);

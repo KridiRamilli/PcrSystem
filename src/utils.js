@@ -1,8 +1,11 @@
 const { PDFDocument, StandardFonts } = require('pdf-lib');
+const QRCode = require('qrcode');
+const { DateTime } = require('luxon');
 const fs = require('fs');
 
+// TODO
 const pcrTemplate = fs.readFileSync('./assets/PCR_Template.pdf');
-const qrcodeImg = fs.readFileSync('./assets/qrcode.png');
+// const qrcodeImg = fs.readFileSync('./assets/qrcode.png'); //remove
 const isBold = ['Pacienti', 'Rezultati', 'Aprovuar'];
 
 const db = {
@@ -17,10 +20,45 @@ const db = {
   OraAplikimit: '29/09/21 16:56',
 };
 
+const generateQRCODE = async (text) => {
+  try {
+    const qrcode = await QRCode.toDataURL(text);
+    return qrcode;
+  } catch (err) {
+    console.error(err);
+  }
+  return false;
+};
+
+const formatDate = () => {
+  const dt = DateTime.now();
+  const accepted = dt.toFormat('dd/LL/yyyy HH:mm').toString();
+  const approved = dt
+    .plus({
+      hours: 5,
+    })
+    .toFormat('dd/LL/yyyy HH:mm')
+    .toString();
+
+  return {
+    accepted,
+    approved,
+  };
+};
+
+const getAge = (date) => {
+  const bornDate = DateTime.fromFormat(date, 'yyyy-LL-dd');
+  const age = DateTime.now().diff(bornDate, 'years').years;
+  return {
+    age: Math.floor(age),
+    born: bornDate.toFormat('dd/LL/yyyy').toString(),
+  };
+};
+
 const generatePDF = async () => {
   const pdfDoc = await PDFDocument.load(pcrTemplate);
-  const qrImg = await pdfDoc.embedPng(qrcodeImg);
-  // const pages = pdfDoc.getPages();
+  const qrcode = await generateQRCODE('Kridi');
+  const qrImg = await pdfDoc.embedPng(qrcode);
   const form = pdfDoc.getForm();
   const fields = form.getFields();
   const helvetica = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
@@ -45,5 +83,11 @@ const generatePDF = async () => {
   const pdfBytes = await pdfDoc.save();
   fs.writeFileSync('./test.pdf', pdfBytes);
 };
+// generatePDF();
 
-generatePDF();
+// console.log(getAge('2000-10-22'));
+
+// formatDate();
+module.exports = {
+  generatePDF,
+};

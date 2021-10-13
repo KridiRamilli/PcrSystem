@@ -16,4 +16,35 @@ db.serialize(() => {
   });
 });
 
-db.close();
+const init = async () => {
+  await db.run(`CREATE TABLE IF NOT EXISTS patient (
+    patient_id INTEGER PRIMARY KEY,
+    patient_name TEXT NOT NULL,
+    reference INTEGER NOT NULL,
+    sex_age TEXT NOT NULL,
+    personal_id TEXT NOT NULL,
+    accepted TEXT NOT NULL,
+    approved TEXT NOT NULL,
+    result TEXT NOT NULL,
+    application_time TEXT NOT NULL
+  )`);
+  // await db.run(
+  //   'INSERT INTO patient VALUES (1222,"kridi",4,"M","14578777O","29/09/2021  13:34","29/09/2021  13:34","NEGATIVE","29/09/2021  13:34")'
+  // );
+  // await db.all('SELECT patient_id AS id, result FROM patient', (err, rows) => {
+  //   if (err) {
+  //     console.error(err);
+  //   }
+  //   console.log(rows);
+  // });
+  const id = await db.run('SELECT reference FROM patient');
+  console.log(id);
+};
+
+const createPatient = async (patientData) => {
+  const query = 'INSERT INTO patient VALUES ($)';
+};
+
+init();
+
+// db.close();
