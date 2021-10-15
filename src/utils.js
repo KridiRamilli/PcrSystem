@@ -1,7 +1,7 @@
+const fs = require('fs');
 const { PDFDocument, StandardFonts } = require('pdf-lib');
 const QRCode = require('qrcode');
 const { DateTime } = require('luxon');
-const fs = require('fs');
 
 // TODO
 const pcrTemplate = fs.readFileSync('./assets/PCR_Template.pdf');
@@ -30,7 +30,7 @@ const generateQRCODE = async (text) => {
   return false;
 };
 
-const formatDate = () => {
+const calcDate = () => {
   const dt = DateTime.now();
   const accepted = dt.toFormat('dd/LL/yyyy HH:mm').toString();
   const approved = dt
@@ -55,6 +55,22 @@ const getAge = (date) => {
   };
 };
 
+const createDir = async (patientName) => {
+  let patientNameUrl = patientName.split(' ').join('');
+  return new Promise((resolve, reject) => {
+    fs.mkdir(
+      `PCR_TESTS/${patientNameUrl}_${Date.now()}`,
+      { recursive: true },
+      (err, path) => {
+        if (err) {
+          console.error(err);
+          return reject(err);
+        }
+        resolve(path);
+      }
+    );
+  });
+};
 const generatePDF = async () => {
   const pdfDoc = await PDFDocument.load(pcrTemplate);
   const qrcode = await generateQRCODE('Kridi');
@@ -88,6 +104,11 @@ const generatePDF = async () => {
 // console.log(getAge('2000-10-22'));
 
 // formatDate();
+
+
 module.exports = {
   generatePDF,
+  getAge,
+  createDir,
+  calcDate
 };

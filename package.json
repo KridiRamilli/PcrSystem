@@ -21,7 +21,7 @@
     "pdf-lib": "^1.16.0",
     "qrcode": "^1.4.4",
     "sqlite3": "^5.0.2",
-    "uuidv4": "^6.2.12"
+    "uuid": "^3.4.0"
   },
   "devDependencies": {
     "eslint": "^7.32.0",
