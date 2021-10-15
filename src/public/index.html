@@ -4,37 +4,132 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
     <title>PCR-Verify</title>
   </head>
   <body>
-    <h1>Please Insert your data</h1>
-    <form action="">
-      <input
-        type="text"
-        name="name"
-        id=""
-        placeholder="Insert patient name..."
-      />
-      <input
-        type="text"
-        name="lastname"
-        id=""
-        placeholder="Insert patient lastname..."
-      />
-      <input type="text" name="id" id="" placeholder="Insert patient ID..." />
-      <input type="radio" id="mashkull" name="drone" value="mashkull" checked />
-      <label for="mashkull">M</label>
-      <input type="radio" id="femer" name="drone" value="femer" checked />
-      <label for="femer">F</label>
-      <label for="mosha">Zgjidh Moshen:</label>
-      <input type="date" name="mosha" id="" />
-      <select name="result" id="">
-        <option value="Res" selected disabled>Result</option>
-        <option value="Negative">Negative</option>
-        <option value="Positive">Positive</option>
-      </select>
-
-      <input type="submit" name="" id="" value="Submit" />
-    </form>
+    <div class="container">
+      <div class="container__header">
+        <h1 class="title">Insert Data</h1>
+        <p class="subtitle">
+          New patient tested? Please fill in with patient result.
+        </p>
+      </div>
+      <div class="container__body">
+        <div class="contact">
+          <div class="contact__info">
+            <div>
+              <h1 class="contact__title">Contact information</h1>
+              <p class="contact__subtitle">
+                Fill up the form and our team will get back to you within 24
+                hours.
+              </p>
+            </div>
+            <div class="lab">
+              <p class="lab__number">
+                <i class="fas fa-lg fa-phone-alt"></i> +355682000000
+              </p>
+              <p class="lab__email">
+                <i class="fas fa-lg fa-envelope"></i>testtest@gmail.com
+              </p>
+            </div>
+          </div>
+          <div class="contact__image"></div>
+        </div>
+        <form class="form" action="">
+          <div class="form__row">
+            <div class="form__cell">
+              <label>First Name</label>
+              <input
+                class="form__firstName"
+                type="text"
+                name="name"
+                id=""
+                pattern="[A-Za-z]{3,}"
+                title="Three(3) to ten(10) letters allowed"
+                required
+              />
+            </div>
+            <div class="form__cell">
+              <label>Last Name</label>
+              <input
+                class="form__lastName"
+                type="text"
+                name="lname"
+                id=""
+                pattern="[A-Za-z]{3,}"
+                title="Three(3) to ten(10) letters allowed"
+                required
+              />
+            </div>
+          </div>
+          <div class="form__row">
+            <div class="form__cell form__cell__id">
+              <label>Personal ID</label>
+              <input
+                class="form__id"
+                type="text"
+                name="personalId"
+                id=""
+                pattern="[A-Z]{1}[0-9]{8}[A-Z]{1}"
+                title="ID format only"
+                required
+              />
+            </div>
+            <div class="form__cell form__gender">
+              <label>Choose gender:</label>
+              <div>
+                <input
+                  class="form__M"
+                  type="radio"
+                  id="male"
+                  name="sex"
+                  value="male"
+                  checked
+                />
+                <label class="form__gender__male" for="male">Male</label>
+                <input
+                  class="form__F"
+                  type="radio"
+                  id="female"
+                  name="sex"
+                  value="female"
+                  checked
+                />
+                <label for="female">Female</label>
+              </div>
+            </div>
+          </div>
+          <div class="form__row">
+            <div class="form__cell form__age">
+              <label for="age">Date of birth:</label>
+              <input type="date" name="birthday" id="" required />
+            </div>
+            <div class="form__cell form__result">
+              <select name="result" id="" required>
+                <option value="Res" selected disabled>Result</option>
+                <option value="Negative">Negative</option>
+                <option value="Positive">Positive</option>
+              </select>
+            </div>
+          </div>
+          <div class="form__row submit">
+            <input
+              class="form__submit"
+              type="submit"
+              name=""
+              id=""
+              value="Insert patient"
+            />
+          </div>
+        </form>
+      </div>
+    </div>
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+      integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm"
+      crossorigin="anonymous"
+    />
   </body>
 </html>
