@@ -47,6 +47,7 @@
                 id=""
                 pattern="[A-Za-z]{3,}"
                 title="Three(3) to ten(10) letters allowed"
+                required
               />
             </div>
             <div class="form__cell">
@@ -54,10 +55,11 @@
               <input
                 class="form__lastName"
                 type="text"
-                name="lastname"
+                name="lname"
                 id=""
                 pattern="[A-Za-z]{3,}"
                 title="Three(3) to ten(10) letters allowed"
+                required
               />
             </div>
           </div>
@@ -67,10 +69,11 @@
               <input
                 class="form__id"
                 type="text"
-                name="id"
+                name="personalId"
                 id=""
                 pattern="[A-Z]{1}[0-9]{8}[A-Z]{1}"
                 title="ID format only"
+                required
               />
             </div>
             <div class="form__cell form__gender">
@@ -80,7 +83,7 @@
                   class="form__M"
                   type="radio"
                   id="male"
-                  name="drone"
+                  name="sex"
                   value="male"
                   checked
                 />
@@ -89,7 +92,7 @@
                   class="form__F"
                   type="radio"
                   id="female"
-                  name="drone"
+                  name="sex"
                   value="female"
                   checked
                 />
@@ -100,10 +103,10 @@
           <div class="form__row">
             <div class="form__cell form__age">
               <label for="age">Date of birth:</label>
-              <input type="date" name="age" id="" />
+              <input type="date" name="birthday" id="" required />
             </div>
             <div class="form__cell form__result">
-              <select name="result" id="">
+              <select name="result" id="" required>
                 <option value="Res" selected disabled>Result</option>
                 <option value="Negative">Negative</option>
                 <option value="Positive">Positive</option>
