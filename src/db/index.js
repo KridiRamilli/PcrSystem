@@ -31,28 +31,54 @@ const init = () => {
     );
   });
 };
-const addPatient = (patientData) => {
-  // const {
-  //   patientId,
-  //   patientName,
-  //   sexAge,
-  //   personalId,
-  //   accepted,
-  //   approved,
-  //   result,
-  //   applicationTime
-  // } = patientData;
-  // console.log(db.__proto__);
-  const query =
-    'INSERT INTO patient VALUES (115425645,"kridi",4,"M","14578777O","29/09/2021  13:34","29/09/2021  13:34","NEGATIVE","29/09/2021  13:34")';
+
+const closeDb = () => {
   return new Promise((resolve, reject) => {
-    db.run(query, (err) => {
+    db.close((err) => {
       if (err) {
-        console.error(err);
         return reject(err);
       }
-      return resolve();
+      resolve();
     });
+  });
+};
+const addPatient = (patientData) => {
+  const {
+    patientId,
+    patientName,
+    reference,
+    sex,
+    age,
+    personalId,
+    accepted,
+    approved,
+    result,
+    applicationTime,
+  } = patientData;
+
+  return new Promise((resolve, reject) => {
+    db.run(
+      'INSERT INTO patients VALUES (?,?,?,?,?,?,?,?,?,?)',
+      [
+        patientId,
+        patientName,
+        reference + 1,
+        sex,
+        age,
+        personalId,
+        accepted,
+        approved,
+        result.toUpperCase(),
+        applicationTime,
+      ],
+      (err) => {
+        if (err) {
+          console.error(err);
+          return reject(err);
+        }
+        return resolve();
+      }
+    );
   });
 };
 
@@ -72,7 +98,7 @@ const getPatient = (personalId) => {
 };
 
 const getAllData = () => {
-  db.all('SELECT personal_id AS id, result FROM patient', (err, rows) => {
+  db.all('SELECT personal_id AS id, result FROM patients', (err, rows) => {
     if (err) {
       console.error(err);
     }
@@ -80,15 +106,23 @@ const getAllData = () => {
   });
 };
 
-// const createPatient = async (patientData) => {
-//   const query = `INSERT INTO patient VALUES (${})`;
-// };
-
-// db.close();
+const getReference = () => {
+  return new Promise((resolve, reject) => {
+    db.get('SELECT max(reference) FROM patients', (err, result) => {
+      if (err) {
+        return reject(err);
+      }
+      const reference = result['max(reference)'];
+      resolve(reference);
+    });
+  });
+};
 
 module.exports = {
   init,
+  closeDb,
   addPatient,
   getAllData,
   getPatient,
+  getReference,
 };

@@ -4,7 +4,9 @@ const QRCode = require('qrcode');
 const { DateTime } = require('luxon');
 
 // TODO
-const pcrTemplate = fs.readFileSync('./assets/PCR_Template.pdf');
+const pcrTemplate = fs.readFileSync(
+  __dirname + '/public/assets/PCR_Template.pdf'
+);
 // const qrcodeImg = fs.readFileSync('./assets/qrcode.png'); //remove
 const isBold = ['Pacienti', 'Rezultati', 'Aprovuar'];
 
@@ -105,10 +107,9 @@ const generatePDF = async () => {
 
 // formatDate();
 
-
 module.exports = {
   generatePDF,
   getAge,
   createDir,
-  calcDate
+  calcDate,
 };

@@ -12,6 +12,8 @@ const { createDir, getAge, calcDate } = require('./utils');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+//Sapo te instalohen paketat djathtas ke live share dhe kliko chat
+
 const staticDir = path.join(__dirname, 'public');
 app.use(express.json());
 app.use(express.static(staticDir));
@@ -36,19 +38,24 @@ app.post('/generate', async (req, res) => {
   });
   const { age, born } = getAge(birthday);
   const { approved, accepted } = calcDate();
+  const reference = await db.getReference();
+  console.log('ref val:', reference);
   const newPatient = {
     patientId: id,
     patientName,
     patientUrl,
     result,
+    reference: reference || 1,
     personalId,
     path,
-    age,
     sex,
+    age,
     born,
     approved,
     accepted,
+    applicationTime: approved,
   };
+  db.addPatient(newPatient); // do ja jap te gjithe objektin
   res.status(200).send(newPatient);
 });
 
@@ -58,9 +65,12 @@ db.init()
     app.listen(PORT, () => {
       console.log(`Server is listening on port ${PORT}`);
     });
-    // db.getPatient('14578777O');
   })
   .catch((err) => {
     console.error(err);
     process.exit(1);
   });
+
+process.on('SIGINT', db.closeDb);
+process.on('SIGTERM', db.closeDb);
+process.on('SIGUSR2', db.closeDb);
