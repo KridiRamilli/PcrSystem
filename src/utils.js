@@ -1,26 +1,16 @@
 const fs = require('fs');
+const path = require('path');
 const { PDFDocument, StandardFonts } = require('pdf-lib');
 const QRCode = require('qrcode');
 const { DateTime } = require('luxon');
 
-// TODO
+const db = require('./db');
+
+// TODO remove sync reading
 const pcrTemplate = fs.readFileSync(
   __dirname + '/public/assets/PCR_Template.pdf'
 );
-// const qrcodeImg = fs.readFileSync('./assets/qrcode.png'); //remove
-const isBold = ['Pacienti', 'Rezultati', 'Aprovuar'];
-
-const db = {
-  Pacienti: 'KRIDI RAMILLI',
-  Referenca: '547789',
-  SexAge: 'Mashkull-32',
-  ID: 'I4769647O',
-  Pranuar: '29/09/2021  13:34',
-  Aprovuar: '29/09/2021  13:34',
-  Origjina: '',
-  Rezultati: 'POZITIVE',
-  OraAplikimit: '29/09/21 16:56',
-};
+const isBold = ['patient_name', 'result', 'approved'];
 
 const generateQRCODE = async (text) => {
   try {
@@ -57,25 +47,34 @@ const getAge = (date) => {
   };
 };
 
-const createDir = async (patientName) => {
-  let patientNameUrl = patientName.split(' ').join('');
-  return new Promise((resolve, reject) => {
-    fs.mkdir(
-      `PCR_TESTS/${patientNameUrl}_${Date.now()}`,
-      { recursive: true },
-      (err, path) => {
-        if (err) {
-          console.error(err);
-          return reject(err);
-        }
-        resolve(path);
-      }
-    );
-  });
-};
-const generatePDF = async () => {
+//TODO remove this method
+// const createDir = async (patientName) => {
+//   let patientNameUrl = `PCR_TESTS/${patientName
+//     .split(' ')
+//     .join('')}_${Date.now()}`;
+//   return new Promise((resolve, reject) => {
+//     fs.mkdir(
+//       path.join(__dirname, '..', patientNameUrl),
+//       { recursive: true },
+//       (err) => {
+//         if (err) {
+//           console.error(err);
+//           return reject(err);
+//         }
+//         resolve(patientNameUrl);
+//       }
+//     );
+//   });
+// };
+
+const generatePDF = async (patientData) => {
+  const { patientId, qrcodeUrl, pdfPath, personalId, born, sex, age } =
+    patientData;
+
+  const patientFromDb = await db.getPatient(personalId);
+  patientFromDb['sex_age'] = `${sex} / ${born}-${age} vjec`;
   const pdfDoc = await PDFDocument.load(pcrTemplate);
-  const qrcode = await generateQRCODE('Kridi');
+  const qrcode = await generateQRCODE(qrcodeUrl);
   const qrImg = await pdfDoc.embedPng(qrcode);
   const form = pdfDoc.getForm();
   const fields = form.getFields();
@@ -89,27 +88,21 @@ const generatePDF = async () => {
     } else if (isBold.includes(name)) {
       const textField = form.getTextField(name);
       textField.setFontSize(11);
-      textField.setText(db[name]);
+      textField.setText(patientFromDb[name]);
       textField.defaultUpdateAppearances(helvetica);
     } else {
       const textField = form.getTextField(name);
       textField.setFontSize(9);
-      textField.setText(db[name]);
+      textField.setText(patientFromDb[name] + '');
     }
   });
   form.flatten();
   const pdfBytes = await pdfDoc.save();
-  fs.writeFileSync('./test.pdf', pdfBytes);
+  fs.writeFileSync(path.join(pdfPath, `${patientId}.pdf`), pdfBytes);
 };
-// generatePDF();
-
-// console.log(getAge('2000-10-22'));
-
-// formatDate();
 
 module.exports = {
   generatePDF,
   getAge,
-  createDir,
   calcDate,
 };

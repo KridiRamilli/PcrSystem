@@ -61,14 +61,14 @@ const addPatient = (patientData) => {
       'INSERT INTO patients VALUES (?,?,?,?,?,?,?,?,?,?)',
       [
         patientId,
-        patientName,
+        patientName.toUpperCase(),
         reference + 1,
         sex,
         age,
         personalId,
         accepted,
         approved,
-        result.toUpperCase(),
+        result && result.toUpperCase(),
         applicationTime,
       ],
       (err) => {
@@ -90,8 +90,6 @@ const getPatient = (personalId) => {
         console.error(err);
         return reject(err);
       }
-      console.log('from me', row);
-      console.log('from me', query);
       resolve(row);
     });
   });

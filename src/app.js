@@ -7,12 +7,10 @@ require('dotenv').config();
 const db = require('./db');
 
 console.log(uuidv4());
-const { createDir, getAge, calcDate } = require('./utils');
+const { createDir, getAge, calcDate, generatePDF } = require('./utils');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-//Sapo te instalohen paketat djathtas ke live share dhe kliko chat
 
 const staticDir = path.join(__dirname, 'public');
 app.use(express.json());
@@ -22,28 +20,26 @@ app.get('/', (req, res) => {
   res.sendFile(`${staticDir}/index.html`);
 });
 
-app.get('/me:id', (req, res) => {
+app.get('/me/:id', (req, res) => {
   const { id } = req.params;
-  res.send(id);
+  let filePath = path.join(__dirname, '..', 'PCR_TESTS', `${id}.pdf`);
+  res.sendFile(filePath);
 });
 
 app.post('/generate', async (req, res) => {
   const { name, lname, sex, birthday, result, personalId } = req.body;
   let id = uuidv4();
   let patientName = `${name} ${lname}`;
-  let patientUrl = `127.0.0.1:3000/me/${id}`;
-  let path = await createDir(patientName).catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+  let qrcodeUrl = `127.0.0.1:3000/me/${id}`;
+  let pdfPath = path.join(__dirname, '..', 'PCR_TESTS');
   const { age, born } = getAge(birthday);
   const { approved, accepted } = calcDate();
   const reference = await db.getReference();
-  console.log('ref val:', reference);
   const newPatient = {
     patientId: id,
     patientName,
-    patientUrl,
+    qrcodeUrl,
+    pdfPath,
     result,
     reference: reference || 1,
     personalId,
@@ -55,16 +51,23 @@ app.post('/generate', async (req, res) => {
     accepted,
     applicationTime: approved,
   };
-  db.addPatient(newPatient); // do ja jap te gjithe objektin
-  res.status(200).send(newPatient);
+  db.addPatient(newPatient).catch((err) => {
+    if (err) {
+      console.error(err);
+      res.status(401).send('User not inserted in DB');
+      return;
+    }
+  });
+  generatePDF(newPatient);
+  res.status(200).send(qrcodeUrl);
 });
 
 db.init()
   .then(() => {
-    // db.addPatient();
     app.listen(PORT, () => {
       console.log(`Server is listening on port ${PORT}`);
     });
+    db.getPatient('I612889O');
   })
   .catch((err) => {
     console.error(err);
