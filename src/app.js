@@ -6,8 +6,7 @@ require('dotenv').config();
 
 const db = require('./db');
 
-console.log(uuidv4());
-const { createDir, getAge, calcDate, generatePDF } = require('./utils');
+const { getAge, calcDate, generatePDF } = require('./utils');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,14 +22,27 @@ app.get('/', (req, res) => {
 app.get('/me/:id', (req, res) => {
   const { id } = req.params;
   let filePath = path.join(__dirname, '..', 'PCR_TESTS', `${id}.pdf`);
-  res.sendFile(filePath);
+  if (fs.existsSync(filePath)) {
+    return res.status(200).sendFile(filePath);
+  }
+  res.status(401).send('File not found');
+});
+
+//TODO
+app.get('/stats', async (req, res) => {
+  res.send('stats');
+});
+
+//TODO
+app.get('/all', (req, res) => {
+  res.send('all');
 });
 
 app.post('/generate', async (req, res) => {
-  const { name, lname, sex, birthday, result, personalId } = req.body;
+  const { name, lname, sex, birthday, result, personalId, email } = req.body;
   let id = uuidv4();
   let patientName = `${name} ${lname}`;
-  let qrcodeUrl = `127.0.0.1:3000/me/${id}`;
+  let qrcodeUrl = `http://127.0.0.1:3000/me/${id}`;
   let pdfPath = path.join(__dirname, '..', 'PCR_TESTS');
   const { age, born } = getAge(birthday);
   const { approved, accepted } = calcDate();
@@ -50,6 +62,7 @@ app.post('/generate', async (req, res) => {
     approved,
     accepted,
     applicationTime: approved,
+    email,
   };
   db.addPatient(newPatient).catch((err) => {
     if (err) {
@@ -62,6 +75,7 @@ app.post('/generate', async (req, res) => {
   res.status(200).send(qrcodeUrl);
 });
 
+//#region DB INIT
 db.init()
   .then(() => {
     app.listen(PORT, () => {
@@ -73,7 +87,13 @@ db.init()
     console.error(err);
     process.exit(1);
   });
+//#endregion
+const closeDb = () => {
+  db.closeDb()
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err));
+};
 
-process.on('SIGINT', db.closeDb);
-process.on('SIGTERM', db.closeDb);
-process.on('SIGUSR2', db.closeDb);
+process.on('SIGINT', closeDb);
+process.on('SIGTERM', closeDb);
+process.on('SIGUSR2', closeDb);

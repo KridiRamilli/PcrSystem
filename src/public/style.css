@@ -8,7 +8,6 @@
 .container {
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
   align-items: center;
   width: 100vw;
   height: 100vh;
@@ -22,7 +21,7 @@
   align-items: center;
 }
 .container__body {
-  width: 75%;
+  width: 65%;
   height: 75%;
   background-color: #fff;
   border-radius: 1rem;
@@ -50,7 +49,12 @@
   width: 40%;
   height: 100%;
   border-radius: 1rem;
-  background-color: #3e1f92;
+  background: #43cea2;
+  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #185a9d, #43cea2);
+  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #185a9d, #43cea2);
+  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 .contact__info {
   width: 100%;
@@ -61,13 +65,14 @@
   align-items: flex-start;
   padding: 1rem 2rem;
   font-family: "Roboto", "san-serif";
+  font-size: 1vw;
 }
 .contact__title {
   color: #fff;
   font-weight: 400;
 }
 .contact__subtitle {
-  color: #ccc;
+  color: #fff;
   font-size: 0.9rem;
   padding: 12px 0;
   font-weight: 100;
@@ -76,7 +81,6 @@
   width: 100%;
   height: 60%;
   border-radius: 0 0 0 1rem;
-  background-color: saddlebrown;
   background-image: url(./assets/PCRTest.jpg);
   background-repeat: no-repeat;
   background-size: cover;
@@ -89,6 +93,11 @@
   width: 100%;
   color: #fff;
   font-weight: 300;
+  font-size: 1vw;
+  text-align: center;
+}
+.lab .fas {
+  margin-bottom: 5px;
 }
 
 .form {
@@ -108,6 +117,28 @@
   justify-content: space-evenly;
   align-items: center;
 }
+.form__reset {
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  font-size: 1rem;
+  padding: 8px 1rem;
+  border-radius: 8px;
+  background: #ff9966;
+  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #ff5e62, #ff9966);
+  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #ff5e62, #ff9966);
+  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  transition: all 0.3s;
+}
+.form__reset:hover {
+  background: #ff9966;
+  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to left, #ff5e62, #ff9966);
+  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to left, #ff5e62, #ff9966);
+}
 .form__cell {
   display: flex;
   flex-direction: column;
@@ -122,20 +153,20 @@
 .form__cell > label :focus {
   color: #3e1f92;
 }
-.form__cell > input[type=text] {
+.form__cell > input[type=text], .form__cell > input[type=email] {
   border: none;
   border-bottom: 1.5px solid #ccc;
   outline: none;
   width: 80%;
   padding: 10px 2px 5px;
-  font-size: 1.1rem;
 }
-.form__cell > input[type=text]:focus {
+.form__cell > input[type=text]:focus, .form__cell > input[type=email]:focus {
   border-bottom: 1.5px solid #3e1f92;
 }
 .form__gender > div {
   padding-top: 10px;
   font-size: 1.1rem;
+  font-weight: 100;
 }
 .form__gender__male {
   padding-right: 2rem;
@@ -146,6 +177,8 @@
 .form__age > input {
   width: 80%;
   padding: 7px;
+  border: none;
+  border-bottom: 1px solid #ccc;
 }
 .form__result {
   height: 100%;
@@ -156,20 +189,39 @@
 .form__result > select {
   width: 80%;
   padding: 10px;
+  background-color: #fff;
+  border: none;
+  border-bottom: 1px solid #ccc;
 }
 .form__submit {
   font-size: 1.2rem;
-  padding: 1rem 2.5rem;
+  padding: 0.8rem 2rem;
   border-radius: 8px;
-  background-color: #3e1f92;
+  background: #43cea2;
+  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #185a9d, #43cea2);
+  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #185a9d, #43cea2);
+  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
   color: #fff;
-  border: 1px solid #3e1f92;
+  border: 1px solid white;
   cursor: pointer;
   transition: all 0.5s;
 }
 .form__submit:hover {
-  background-color: #fff;
-  color: #3e1f92;
+  background: #43cea2;
+  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to left, #185a9d, #43cea2);
+  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to left, #185a9d, #43cea2);
+  color: #fff;
+}
+
+.reset {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  padding-right: 2rem;
 }
 
 .submit {

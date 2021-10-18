@@ -37,6 +37,9 @@
           <div class="contact__image"></div>
         </div>
         <form class="form" action="">
+          <div class="form__row reset">
+            <input type="button" value="Reset" class="form__reset" />
+          </div>
           <div class="form__row">
             <div class="form__cell">
               <label>First Name</label>
@@ -76,6 +79,20 @@
                 required
               />
             </div>
+            <div class="form__cell form__cell__email">
+              <label>Email</label>
+              <input
+                class="form__id"
+                type="email"
+                name="email"
+                id=""
+                pattern="[a-z0-9.]+@{1}[a-z0-9.]+.{1}[a-z]{2,}"
+                title="@ is required"
+                required
+              />
+            </div>
+          </div>
+          <div class="form__row">
             <div class="form__cell form__gender">
               <label>Choose gender:</label>
               <div>
@@ -84,8 +101,7 @@
                   type="radio"
                   id="male"
                   name="sex"
-                  value="male"
-                  checked
+                  value="M"
                 />
                 <label class="form__gender__male" for="male">Male</label>
                 <input
@@ -93,21 +109,26 @@
                   type="radio"
                   id="female"
                   name="sex"
-                  value="female"
-                  checked
+                  value="F"
                 />
                 <label for="female">Female</label>
               </div>
             </div>
-          </div>
-          <div class="form__row">
             <div class="form__cell form__age">
               <label for="age">Date of birth:</label>
-              <input type="date" name="birthday" id="" required />
+              <input
+                type="date"
+                name="birthday"
+                min="1920-12-31"
+                id=""
+                required
+              />
             </div>
+          </div>
+          <div class="form__row">
             <div class="form__cell form__result">
               <select name="result" id="" required>
-                <option value="Res" selected disabled>Result</option>
+                <option value="Result" selected disabled>Result</option>
                 <option value="Negative">Negative</option>
                 <option value="Positive">Positive</option>
               </select>
@@ -131,5 +152,6 @@
       integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm"
       crossorigin="anonymous"
     />
+    <script src="index.js"></script>
   </body>
 </html>

@@ -20,7 +20,8 @@ const init = () => {
         accepted TEXT NOT NULL,
         approved TEXT NOT NULL,
         result TEXT NOT NULL,
-        application_time TEXT NOT NULL
+        application_time TEXT NOT NULL,
+        email TEXT NOT NULL
       )`,
       (err) => {
         if (err) {
@@ -32,16 +33,6 @@ const init = () => {
   });
 };
 
-const closeDb = () => {
-  return new Promise((resolve, reject) => {
-    db.close((err) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve();
-    });
-  });
-};
 const addPatient = (patientData) => {
   const {
     patientId,
@@ -54,11 +45,12 @@ const addPatient = (patientData) => {
     approved,
     result,
     applicationTime,
+    email,
   } = patientData;
 
   return new Promise((resolve, reject) => {
     db.run(
-      'INSERT INTO patients VALUES (?,?,?,?,?,?,?,?,?,?)',
+      'INSERT INTO patients VALUES (?,?,?,?,?,?,?,?,?,?,?)',
       [
         patientId,
         patientName.toUpperCase(),
@@ -70,6 +62,7 @@ const addPatient = (patientData) => {
         approved,
         result && result.toUpperCase(),
         applicationTime,
+        email,
       ],
       (err) => {
         if (err) {
@@ -112,6 +105,18 @@ const getReference = () => {
       }
       const reference = result['max(reference)'];
       resolve(reference);
+    });
+  });
+};
+
+const closeDb = () => {
+  return new Promise((resolve, reject) => {
+    db.close((err) => {
+      if (err) {
+        return reject(err);
+      }
+      console.log('Closing DB Connection!');
+      resolve(process.exit()); //TODO
     });
   });
 };

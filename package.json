@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
+    "start": "pm2 src/app.js",
+    "dev": "nodemon --exec 'node src/app.js && npm run sass'",
+    "sass": "sass --watch src/public/style.scss:src/public/style.css",
     "lint": "eslint . --ext .js",
     "test": "jest",
     "precommit": "npm run lint && npm test",
@@ -19,6 +20,7 @@
     "express": "^4.17.1",
     "luxon": "^2.0.2",
     "pdf-lib": "^1.16.0",
+    "pm2": "^5.1.2",
     "qrcode": "^1.4.4",
     "sqlite3": "^5.0.2",
     "uuid": "^3.4.0"
