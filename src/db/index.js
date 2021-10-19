@@ -89,11 +89,13 @@ const getPatient = (personalId) => {
 };
 
 const getAllData = () => {
-  db.all('SELECT personal_id AS id, result FROM patients', (err, rows) => {
-    if (err) {
-      console.error(err);
-    }
-    console.log(rows);
+  return new Promise((resolve, reject) => {
+    db.all('SELECT personal_id AS id, result FROM patients', (err, rows) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(rows);
+    });
   });
 };
 

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "pm2 src/app.js",
-    "dev": "nodemon --exec 'node src/app.js && npm run sass'",
+    "dev": "nodemon src/app.js",
     "sass": "sass --watch src/public/style.scss:src/public/style.css",
     "lint": "eslint . --ext .js",
     "test": "jest",
