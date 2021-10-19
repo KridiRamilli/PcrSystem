@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 
 const db = require('./db');
+const mail = require('./mail');
 
 const { getAge, calcDate, generatePDF } = require('./utils');
 
@@ -35,6 +36,7 @@ app.get('/stats', async (req, res) => {
 
 //TODO
 app.get('/all', (req, res) => {
+  mail.mail('kridiramilli@gmail.com', 12);
   res.send('all');
 });
 
