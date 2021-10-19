@@ -5,6 +5,7 @@ const QRCode = require('qrcode');
 const { DateTime } = require('luxon');
 
 const db = require('./db');
+const { mail } = require('./mail');
 
 // TODO remove sync reading
 const pcrTemplate = fs.readFileSync(
@@ -47,29 +48,18 @@ const getAge = (date) => {
   };
 };
 
-//TODO remove this method
-// const createDir = async (patientName) => {
-//   let patientNameUrl = `PCR_TESTS/${patientName
-//     .split(' ')
-//     .join('')}_${Date.now()}`;
-//   return new Promise((resolve, reject) => {
-//     fs.mkdir(
-//       path.join(__dirname, '..', patientNameUrl),
-//       { recursive: true },
-//       (err) => {
-//         if (err) {
-//           console.error(err);
-//           return reject(err);
-//         }
-//         resolve(patientNameUrl);
-//       }
-//     );
-//   });
-// };
-
 const generatePDF = async (patientData) => {
-  const { patientId, qrcodeUrl, pdfPath, personalId, born, sex, age } =
-    patientData;
+  const {
+    patientId,
+    qrcodeUrl,
+    pdfPath,
+    personalId,
+    born,
+    sex,
+    age,
+    email,
+    patientName,
+  } = patientData;
 
   const patientFromDb = await db.getPatient(personalId);
   patientFromDb['sex_age'] = `${sex} / ${born}-${age} vjec`;
@@ -99,6 +89,7 @@ const generatePDF = async (patientData) => {
   form.flatten();
   const pdfBytes = await pdfDoc.save();
   fs.writeFileSync(path.join(pdfPath, `${patientId}.pdf`), pdfBytes);
+  mail(email, patientId, patientName);
 };
 
 module.exports = {

@@ -9,17 +9,17 @@ const transporter = nodemailer.createTransport({
     pass: process.env.GMAIL_PASS,
   },
   tls: { rejectUnauthorized: false },
-  debug: true,
 });
 
-const mail = (email, patientId) => {
+const mail = (email, patientId, patientName) => {
+  let fileName = patientName.split(' ').join('_');
   const mailOptions = {
     from: 'qkumlab@gmail.com',
     to: email,
     subject: 'Your PCR Test result',
     attachments: [
       {
-        filename: `${patientId}.pdf`,
+        filename: `${fileName}.pdf`,
         path: path.join(__dirname, `../../PCR_TESTS/${patientId}.pdf`),
         contentType: 'application/pdf',
       },
@@ -29,15 +29,11 @@ const mail = (email, patientId) => {
   transporter.sendMail(mailOptions, (err, info) => {
     if (err) {
       console.error(err);
-      // return err;
     } else {
       console.log(info);
-      // return info;
     }
   });
 };
-
-mail('kridiramilli@gmail.com', 'ca2ba792-844a-4767-a501-92d239541643');
 
 module.exports = {
   mail,
