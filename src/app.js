@@ -7,7 +7,13 @@ require('dotenv').config();
 const db = require('./db');
 const mail = require('./mail');
 
-const { getAge, calcDate, generatePDF } = require('./utils');
+const {
+  getAge,
+  calcDate,
+  generatePDF,
+  getAllPatients,
+  getResult,
+} = require('./utils');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,17 +30,19 @@ app.get('/me/:id', (req, res) => {
   const { id } = req.params;
   let filePath = path.join(__dirname, '..', 'PCR_TESTS', `${id}.pdf`);
   if (fs.existsSync(filePath)) {
-    return res.status(200).sendFile(filePath);
+    return res.sendStatus(200).sendFile(filePath);
   }
-  res.status(401).send('File not found');
+  res.sendStatus(401).send('File not found');
 });
 
 //TODO
 app.get('/stats', async (req, res) => {
-  res.send('stats');
+  const posNeg = await getResult();
+  res.status(200).send(posNeg);
 });
 
 //TODO
+
 app.get('/all', (req, res) => {
   mail.mail('kridiramilli@gmail.com', 12);
   res.send('all');
@@ -69,12 +77,12 @@ app.post('/generate', async (req, res) => {
   db.addPatient(newPatient).catch((err) => {
     if (err) {
       console.error(err);
-      res.status(401).send('User not inserted in DB');
+      res.sendStatus(401).send('User not inserted in DB');
       return;
     }
   });
   generatePDF(newPatient);
-  res.status(200).send(qrcodeUrl);
+  res.sendStatus(200).send(qrcodeUrl);
 });
 
 //#region DB INIT

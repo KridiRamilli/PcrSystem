@@ -101,8 +101,29 @@ const generatePDF = async (patientData) => {
   fs.writeFileSync(path.join(pdfPath, `${patientId}.pdf`), pdfBytes);
 };
 
+const getAllPatients = async () => {
+  const patients = await db.getAllData();
+  return patients.length;
+};
+
+const getResult = async () => {
+  const patients = await db.getAllData();
+  let pos = 0;
+  let neg = 0;
+  for (let i = 0; i < patients.length; i++) {
+    if (patients[i].result === 'POSITIVE') {
+      pos++;
+    } else {
+      neg++;
+    }
+  }
+  return { pos, neg };
+};
+
 module.exports = {
   generatePDF,
   getAge,
   calcDate,
+  getAllPatients,
+  getResult,
 };

@@ -4,7 +4,9 @@ const getEl = (input) => {
 
 const reset = getEl('.form__reset');
 const form = getEl('.form');
-const submit = getEl('.submit');
+const all = getEl('.all');
+const positive = getEl('.positive');
+const negative = getEl('.negative');
 
 reset.addEventListener('click', () => {
   form.reset();
@@ -30,3 +32,19 @@ const getData = (ev) => {
 };
 
 form.addEventListener('submit', (ev) => getData(ev));
+
+const addStatistics = (stat, value) => {
+  stat.innerHTML = value;
+};
+
+const getStats = () => {
+  fetch('/stats')
+    .then((res) => res.json())
+    .then((res) => {
+      addStatistics(positive, res.pos);
+      addStatistics(negative, res.neg);
+      addStatistics(all, res.pos + res.neg);
+    });
+};
+
+getStats();
