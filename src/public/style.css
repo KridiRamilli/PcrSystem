@@ -67,15 +67,27 @@
   font-family: "Roboto", "san-serif";
   font-size: 1vw;
 }
-.contact__title {
-  color: #fff;
-  font-weight: 400;
+.contact__stats {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
 }
-.contact__subtitle {
+.contact__stats > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  box-shadow: 0 0 10px 5px #fff;
   color: #fff;
-  font-size: 0.9rem;
-  padding: 12px 0;
-  font-weight: 100;
+  font-size: 2em;
+  cursor: pointer;
+  transition: all 0.4s;
+}
+.contact__stats > div:hover {
+  transform: scale(0.95);
 }
 .contact__image {
   width: 100%;
