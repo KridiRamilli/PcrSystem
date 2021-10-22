@@ -6,14 +6,9 @@ require('dotenv').config();
 
 const db = require('./db');
 const mail = require('./mail');
+const exportData = require('./exportData');
 
-const {
-  getAge,
-  calcDate,
-  generatePDF,
-  getAllPatients,
-  getResult,
-} = require('./utils');
+const { getAge, calcDate, generatePDF, getResult } = require('./utils');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,22 +25,33 @@ app.get('/me/:id', (req, res) => {
   const { id } = req.params;
   let filePath = path.join(__dirname, '..', 'PCR_TESTS', `${id}.pdf`);
   if (fs.existsSync(filePath)) {
-    return res.sendStatus(200).sendFile(filePath);
+    const file = fs.createReadStream(filePath);
+    res.setHeader('Content-Type', 'application/pdf');
+    return file.pipe(res);
   }
-  res.sendStatus(401).send('File not found');
+
+  //TODO ADD HTML PAGE OF NOT FOUND
+  res.status(401).send('File not found');
 });
 
 //TODO
 app.get('/stats', async (req, res) => {
-  const posNeg = await getResult();
-  res.status(200).send(posNeg);
+  const result = await getResult();
+  res.status(200).send(result);
 });
 
 //TODO
 
 app.get('/all', (req, res) => {
-  mail.mail('kridiramilli@gmail.com', 12);
   res.send('all');
+});
+
+app.post('/patient', async (req, res) => {
+  const { patientId } = req.body;
+  const patient = await db
+    .getPatient(patientId)
+    .catch(() => res.status(400).send('Patient not found'));
+  res.status(201).send(patient);
 });
 
 app.post('/generate', async (req, res) => {
@@ -77,12 +83,12 @@ app.post('/generate', async (req, res) => {
   db.addPatient(newPatient).catch((err) => {
     if (err) {
       console.error(err);
-      res.sendStatus(401).send('User not inserted in DB');
+      res.status(401).send('User not inserted in DB');
       return;
     }
   });
   generatePDF(newPatient);
-  res.sendStatus(200).send(qrcodeUrl);
+  res.status(200).send({ patientName, qrcodeUrl });
 });
 
 //#region DB INIT
@@ -92,6 +98,7 @@ db.init()
       console.log(`Server is listening on port ${PORT}`);
     });
     db.getPatient('I612889O');
+    exportData.generateExcel('negative');
   })
   .catch((err) => {
     console.error(err);

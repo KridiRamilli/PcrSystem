@@ -90,7 +90,27 @@ const getPatient = (personalId) => {
 
 const getAllData = () => {
   return new Promise((resolve, reject) => {
-    db.all('SELECT personal_id AS id, result FROM patients', (err, rows) => {
+    db.all('SELECT * FROM patients', (err, rows) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(rows);
+    });
+  });
+};
+const getNegative = () => {
+  return new Promise((resolve, reject) => {
+    db.all('SELECT * FROM patients WHERE result="NEGATIVE"', (err, rows) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(rows);
+    });
+  });
+};
+const getPositive = () => {
+  return new Promise((resolve, reject) => {
+    db.all('SELECT * FROM patients WHERE result="POSITIVE"', (err, rows) => {
       if (err) {
         return reject(err);
       }
@@ -128,6 +148,8 @@ module.exports = {
   closeDb,
   addPatient,
   getAllData,
+  getNegative,
+  getPositive,
   getPatient,
   getReference,
 };

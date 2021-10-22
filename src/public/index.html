@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+    />
     <link rel="stylesheet" href="style.css" />
     <title>PCR-Verify</title>
   </head>
@@ -19,17 +24,31 @@
         <div class="contact">
           <div class="contact__info">
             <div class="contact__stats">
-              <div class="all" title="All patients">0</div>
-              <div class="positive" title="Positive patients">0</div>
-              <div class="negative" title="Negative patients">0</div>
+              <div class="stats__description">
+                <span>Patients</span>
+                <div class="all" title="All patients">0</div>
+              </div>
+              <div class="stats__description">
+                <span>Positive</span>
+                <div class="positive" title="Positive patients">0</div>
+              </div>
+              <div class="stats__description">
+                <span>Negative</span>
+                <div class="negative" title="Negative patients">0</div>
+              </div>
             </div>
-            <div class="lab">
-              <p class="lab__number">
-                <i class="fas fa-lg fa-phone-alt"></i> +355682000000
-              </p>
-              <p class="lab__email">
-                <i class="fas fa-lg fa-envelope"></i>testtest@gmail.com
-              </p>
+            <div class="search">
+              <div class="search__group">
+                <input
+                  id="searchId"
+                  type="search"
+                  class="search__input"
+                  placeholder="ID (ex: I45798457B)"
+                />
+                <label class="search__label" for="searchId"
+                  ><i class="fas fa-search"></i
+                ></label>
+              </div>
             </div>
           </div>
           <div class="contact__image"></div>
@@ -150,6 +169,10 @@
       integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm"
       crossorigin="anonymous"
     />
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/toastify-js"
+    ></script>
     <script src="index.js"></script>
   </body>
 </html>

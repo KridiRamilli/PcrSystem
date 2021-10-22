@@ -21,8 +21,9 @@
   align-items: center;
 }
 .container__body {
-  width: 65%;
+  width: 95vw;
   height: 75%;
+  max-width: 1150px;
   background-color: #fff;
   border-radius: 1rem;
   display: flex;
@@ -58,7 +59,7 @@
 }
 .contact__info {
   width: 100%;
-  height: 40%;
+  height: 50%;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
@@ -73,12 +74,15 @@
   justify-content: space-around;
   align-items: center;
 }
-.contact__stats > div {
+.contact__stats .all,
+.contact__stats .positive,
+.contact__stats .negative {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 70px;
   height: 70px;
+  margin-top: 15px;
   border-radius: 50%;
   box-shadow: 0 0 10px 5px #fff;
   color: #fff;
@@ -86,30 +90,83 @@
   cursor: pointer;
   transition: all 0.4s;
 }
-.contact__stats > div:hover {
+.contact__stats .all:hover,
+.contact__stats .positive:hover,
+.contact__stats .negative:hover {
   transform: scale(0.95);
+}
+.contact__stats .stats__description {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 200;
+  margin-bottom: 15px;
+  text-align: center;
 }
 .contact__image {
   width: 100%;
-  height: 60%;
+  height: 50%;
   border-radius: 0 0 0 1rem;
   background-image: url(./assets/PCRTest.jpg);
   background-repeat: no-repeat;
   background-size: cover;
+  position: relative;
 }
 
-.lab {
+.search {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: center;
+  align-items: flex-start;
   width: 100%;
   color: #fff;
   font-weight: 300;
   font-size: 1vw;
   text-align: center;
+  transition: all 6s ease-in-out;
 }
-.lab .fas {
-  margin-bottom: 5px;
+.search__group {
+  width: 60px;
+  background-color: #fff;
+  display: flex;
+  border-radius: 40px;
+  padding: 5px;
+  transition: all 0.5s ease-in;
+  transition-delay: 0.1s;
+  box-shadow: 0 0 15px #fff;
+  justify-content: flex-end;
+}
+.search__input {
+  background: transparent;
+  outline: none;
+  border: none;
+  width: 0%;
+  transition: all 0.6s ease-in-out;
+}
+.search__input::placeholder {
+  font-size: 0.7rem;
+  font-style: italic;
+}
+.search__label {
+  color: #fff;
+  background: #ff5e62;
+  width: 50px;
+  height: 50px;
+  display: inline-block;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 50px;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.search__label i {
+  transform: rotate(0deg);
+  transition: transform 1s ease-out;
+}
+.search__label:hover {
+  cursor: pointer;
+  background: teal;
+}
+.search__label:active {
+  transform: scale(0.9);
 }
 
 .form {
@@ -244,14 +301,17 @@
   padding-top: 2rem;
 }
 
-i {
-  padding-right: 10px;
-  color: #fa949d;
+::-webkit-calendar-picker-indicator {
   cursor: pointer;
 }
 
-::-webkit-calendar-picker-indicator {
-  cursor: pointer;
+@keyframes spinSearch {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /*# sourceMappingURL=style.css.map */

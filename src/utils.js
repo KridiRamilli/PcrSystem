@@ -89,12 +89,7 @@ const generatePDF = async (patientData) => {
   form.flatten();
   const pdfBytes = await pdfDoc.save();
   fs.writeFileSync(path.join(pdfPath, `${patientId}.pdf`), pdfBytes);
-  mail(email, patientId, patientName);
-};
-
-const getAllPatients = async () => {
-  const patients = await db.getAllData();
-  return patients.length;
+  // mail(email, patientId, patientName);
 };
 
 const getResult = async () => {
@@ -115,6 +110,5 @@ module.exports = {
   generatePDF,
   getAge,
   calcDate,
-  getAllPatients,
   getResult,
 };
