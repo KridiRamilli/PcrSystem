@@ -58,7 +58,20 @@ const generateExcel = async (filter) => {
   return filePath;
 };
 
-const excelToDb = async () => {};
+//TODO reference should be unique
+const excelToDb = async (fileBuffer) => {
+  const workbook = new ExcelJS.Workbook();
+  const rows = [];
+  await workbook.xlsx.load(fileBuffer);
+  const worksheet = workbook.getWorksheet(1);
+  worksheet.eachRow((row) => {
+    rows.push(row.values.slice(1));
+  });
+  await db.addDataFromFile(rows);
+  return true;
+};
+
+// excelToDb();
 
 module.exports = {
   generateExcel,

@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
+const multer = require('multer');
 
 const db = require('./db');
 const mail = require('./mail');
@@ -17,6 +18,8 @@ const staticDir = path.join(__dirname, 'public');
 app.use(express.json());
 app.use(express.static(staticDir));
 
+const upload = multer();
+
 app.get('/', (req, res) => {
   res.sendFile(`${staticDir}/index.html`);
 });
@@ -25,28 +28,30 @@ app.get('/me/:id', (req, res) => {
   const { id } = req.params;
   let filePath = path.join(__dirname, '..', 'PCR_TESTS', `${id}.pdf`);
   if (fs.existsSync(filePath)) {
-    const file = fs.createReadStream(filePath);
+    const fileStream = fs.createReadStream(filePath);
     res.setHeader('Content-Type', 'application/pdf');
-    return file.pipe(res);
+    return fileStream.pipe(res);
   }
 
   //TODO ADD HTML PAGE OF NOT FOUND
   res.status(401).send('File not found');
 });
 
-//TODO
 app.get('/stats', async (req, res) => {
   const result = await getResult();
   res.status(200).send(result);
 });
 
-//TODO
-
-app.get('/all', (req, res) => {
-  res.send('all');
+app.post('/export', async (req, res) => {
+  const { filter } = req.body;
+  let filePath = await exportData.generateExcel(filter);
+  const fileStream = fs.createReadStream(filePath);
+  res.setHeader('Content-Type', 'application/vnd.ms-excel');
+  res.setHeader('Content-disposition', 'attachment;filename=myExcel.xls');
+  return fileStream.pipe(res);
 });
 
-app.post('/patient', async (req, res) => {
+app.post('/search', async (req, res) => {
   const { patientId } = req.body;
   const patient = await db
     .getPatient(patientId)
@@ -91,14 +96,22 @@ app.post('/generate', async (req, res) => {
   res.status(200).send({ patientName, qrcodeUrl });
 });
 
+app.post('/uploadFile', upload.single('file'), async (req, res) => {
+  const fileBuffer = req.file.buffer;
+  try {
+    await exportData.excelToDb(fileBuffer);
+    res.atatus(200).send('Records inserted in DB!');
+  } catch (error) {
+    res.status(401).send('Error in inserting records!');
+  }
+});
+
 //#region DB INIT
 db.init()
   .then(() => {
     app.listen(PORT, () => {
       console.log(`Server is listening on port ${PORT}`);
     });
-    db.getPatient('I612889O');
-    exportData.generateExcel('negative');
   })
   .catch((err) => {
     console.error(err);

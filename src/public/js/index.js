@@ -1,8 +1,12 @@
-const getEl = (input) => {
-  return document.querySelector(input);
+const getEl = (selector, all) => {
+  if (all) {
+    return document.querySelectorAll(selector);
+  }
+  return document.querySelector(selector);
 };
 
-const reset = getEl('.form__reset');
+const resetBtn = getEl('.form__reset');
+const submitBtn = getEl('.form__submit');
 const form = getEl('.form');
 const all = getEl('.all');
 const positive = getEl('.positive');
@@ -13,6 +17,8 @@ const searchLabelIcon = getEl('.search__label i');
 const searchGroup = getEl('.search__group');
 const searchInput = getEl('.search__input');
 const resultImage = getEl('.contact__image');
+const exportData = getEl('.stats__description div', true);
+const uploadInput = getEl('.upload__input');
 
 //TODO refactor
 
@@ -32,11 +38,11 @@ window.addEventListener('DOMContentLoaded', () => {
   getStats();
 });
 
-reset.addEventListener('click', () => {
+resetBtn.addEventListener('click', () => {
   form.reset();
 });
 
-//get from data from user
+//get form data from user
 const getData = (ev) => {
   ev.preventDefault();
   const patientData = {};
@@ -52,7 +58,6 @@ const getData = (ev) => {
       }
     }
   }
-  console.log(patientData);
   return patientData;
 };
 
@@ -110,26 +115,30 @@ const notify = (patientName, destination, isError) => {
     onClick: function () {}, // Callback after click
   }).showToast();
 };
+
 try {
   const notifyUserFound = (patientName, destination, isError) => {
     Toastify({
       text: `${patientName} added successfully! Download PDF`,
       selector: resultImage,
+      className: 'search__result',
       duration: 200000,
       destination,
       newWindow: true,
       close: true,
       gravity: 'top', // `top` or `bottom`
-      position: 'right', // `left`, `center` or `right`
+      position: 'center', // `left`, `center` or `right`
       stopOnFocus: true, // Prevents dismissing of toast on hover
       style: {
-        background: 'linear-gradient(to right, #00b09b, #96c93d)',
+        background: '#fff',
         position: 'absolute',
+        top: '0px',
+        color: 'teal',
       },
       onClick: function () {}, // Callback after click
     }).showToast();
   };
-  notifyUserFound('HI', 'HI');
+  // notifyUserFound('HI', 'HI');
 } catch (error) {
   console.log(error);
 }
@@ -156,7 +165,7 @@ const openSearch = () => {
   }
   if (searchLabelIcon.classList.value.includes('fa-play')) {
     let val = searchInput.value.trim();
-    fetch('/patient', {
+    fetch('/search', {
       method: 'post',
       headers: {
         'Content-Type': 'application/json',
@@ -191,4 +200,56 @@ searchInput.addEventListener('focusout', () => {
   if (searchInput.value.trim() === '') {
     closeSearch();
   }
+});
+
+const downloadData = (ev) => {
+  const filter = ev.target.dataset.filter;
+  fetch(`/export`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      filter,
+    }),
+  })
+    .then((res) => res.blob())
+    .then((res) => downloadFile(res, filter))
+    .catch((err) => {
+      console.error(err);
+    });
+};
+
+Array.from(exportData, (el) => {
+  el.addEventListener('click', (ev) => {
+    downloadData(ev);
+  });
+});
+
+const downloadFile = (blob, filename) => {
+  var url = window.URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = `${filename}.xlsx`;
+  document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+  a.click();
+  a.remove(); //We have no use of the elem afterwards
+};
+
+const uploadFile = (inputFile) => {
+  const formData = new FormData();
+  formData.append('file', inputFile);
+  fetch('/uploadFile', {
+    method: 'POST',
+    body: formData,
+  }).then((res) => {
+    //TODO send should be JSON
+    // res.json()
+    console.log(res);
+  });
+};
+
+uploadInput.addEventListener('change', (ev) => {
+  submitBtn.innerHTML = `${ev.target.files[0].name}`;
+  console.log(ev.target.files[0]);
 });

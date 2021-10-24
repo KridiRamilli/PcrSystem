@@ -9,7 +9,7 @@
       type="text/css"
       href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
     />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="css/style.css" />
     <title>PCR-Verify</title>
   </head>
   <body>
@@ -26,15 +26,27 @@
             <div class="contact__stats">
               <div class="stats__description">
                 <span>Patients</span>
-                <div class="all" title="All patients">0</div>
+                <div class="all" title="All patients" data-filter="all">0</div>
               </div>
               <div class="stats__description">
                 <span>Positive</span>
-                <div class="positive" title="Positive patients">0</div>
+                <div
+                  class="positive"
+                  title="Positive patients"
+                  data-filter="positive"
+                >
+                  0
+                </div>
               </div>
               <div class="stats__description">
                 <span>Negative</span>
-                <div class="negative" title="Negative patients">0</div>
+                <div
+                  class="negative"
+                  title="Negative patients"
+                  data-filter="negative"
+                >
+                  0
+                </div>
               </div>
             </div>
             <div class="search">
@@ -51,7 +63,9 @@
               </div>
             </div>
           </div>
-          <div class="contact__image"></div>
+          <div class="contact__image">
+            <form class="upload" action=""></form>
+          </div>
         </div>
         <form class="form" action="">
           <div class="form__row reset">
@@ -152,6 +166,19 @@
             </div>
           </div>
           <div class="form__row submit">
+            <label
+              class="upload__label"
+              for="file"
+              title="Upload patients from Excel"
+              ><i class="fas fa-file-excel"></i
+            ></label>
+            <input
+              accept=".xlsx,application/vnd.ms-excel"
+              class="upload__input"
+              type="file"
+              name="file"
+              id="file"
+            />
             <input
               class="form__submit"
               type="submit"
@@ -173,6 +200,6 @@
       type="text/javascript"
       src="https://cdn.jsdelivr.net/npm/toastify-js"
     ></script>
-    <script src="index.js"></script>
+    <script src="js/index.js"></script>
   </body>
 </html>

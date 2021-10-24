@@ -131,6 +131,24 @@ const getReference = () => {
   });
 };
 
+const addDataFromFile = (rows) => {
+  return new Promise((resolve, reject) => {
+    let query = db.prepare(
+      'INSERT INTO patients VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+      (err) => {
+        if (err) {
+          return reject(err);
+        }
+        for (let i = 0; i < rows.length; i++) {
+          query.run(rows[i]);
+        }
+        query.finalize();
+        resolve();
+      }
+    );
+  });
+};
+
 const closeDb = () => {
   return new Promise((resolve, reject) => {
     db.close((err) => {
@@ -152,4 +170,5 @@ module.exports = {
   getPositive,
   getPatient,
   getReference,
+  addDataFromFile,
 };
