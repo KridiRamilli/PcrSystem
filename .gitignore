@@ -1,5 +1,6 @@
 node_modules
 .env
 src/db/main.db
-PCR_TESTS/*
-EXPORTS/*
+pcr_tests/*
+exports/*
+logs/*

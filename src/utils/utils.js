@@ -4,12 +4,12 @@ const { PDFDocument, StandardFonts } = require('pdf-lib');
 const QRCode = require('qrcode');
 const { DateTime } = require('luxon');
 
-const db = require('./db');
-const { mail } = require('./mail');
+const db = require('../db');
+const { mail } = require('../mail');
 
 // TODO remove sync reading
 const pcrTemplate = fs.readFileSync(
-  __dirname + '/public/assets/PCR_Template.pdf'
+  path.join(__dirname, `../public/assets/PCR_Template.pdf`)
 );
 const isBold = ['patient_name', 'result', 'approved'];
 
@@ -92,23 +92,8 @@ const generatePDF = async (patientData) => {
   // mail(email, patientId, patientName);
 };
 
-const getResult = async () => {
-  const patients = await db.getAllData();
-  let pos = 0;
-  let neg = 0;
-  for (let i = 0; i < patients.length; i++) {
-    if (patients[i].result === 'POSITIVE') {
-      pos++;
-    } else {
-      neg++;
-    }
-  }
-  return { pos, neg };
-};
-
 module.exports = {
   generatePDF,
   getAge,
   calcDate,
-  getResult,
 };

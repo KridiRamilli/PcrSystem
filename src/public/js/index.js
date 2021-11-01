@@ -1,27 +1,85 @@
-const getEl = (selector, all) => {
+//UTILS
+const $ = (selector, all) => {
   if (all) {
     return document.querySelectorAll(selector);
   }
   return document.querySelector(selector);
 };
 
-const resetBtn = getEl('.form__reset');
-const submitBtn = getEl('.form__submit');
-const form = getEl('.form');
-const all = getEl('.all');
-const positive = getEl('.positive');
-const negative = getEl('.negative');
-const search = getEl('.search');
-const searchLabel = getEl('.search__label');
-const searchLabelIcon = getEl('.search__label i');
-const searchGroup = getEl('.search__group');
-const searchInput = getEl('.search__input');
-const resultImage = getEl('.contact__image');
-const exportData = getEl('.stats__description div', true);
-const uploadInput = getEl('.upload__input');
+//#region  notifications
+const notify = (msg = '', destination = '') => {
+  const isError = msg.toLowerCase().includes('error');
+  Toastify({
+    text: msg,
+    duration: 20000,
+    destination,
+    newWindow: true,
+    close: true,
+    gravity: 'top', // `top` or `bottom`
+    position: 'right', // `left`, `center` or `right`
+    stopOnFocus: true, // Prevents dismissing of toast on hover
+    style: {
+      background: isError
+        ? 'linear-gradient(to right, #D51D09, #8E2A0C)'
+        : 'linear-gradient(to right, #00b09b, #96c93d)',
+    },
+    onClick: function () {}, // Callback after click
+  }).showToast();
+};
 
-//TODO refactor
+const notifyPatientFound = (msg, destination) => {
+  const isError = msg.toLowerCase().includes('error');
+  msg = msg.replace(/Error/gi, '');
+  Toastify({
+    text: msg,
+    selector: resultImage,
+    className: 'search__result',
+    duration: 10000,
+    destination,
+    newWindow: true,
+    close: true,
+    gravity: 'top', // `top` or `bottom`
+    position: 'center', // `left`, `center` or `right`
+    stopOnFocus: true, // Prevents dismissing of toast on hover
+    style: {
+      background: isError ? 'red' : '#fff',
+      position: 'absolute',
+      top: '0px',
+      color: isError ? '#fff' : 'teal',
+    },
+    onClick: function () {}, // Callback after click
+  }).showToast();
+};
 
+//#endregion
+
+//showing download popup automatically
+const downloadFile = (blob, filename, ext) => {
+  var url = window.URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = `${filename}.${ext}`;
+  document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+  a.click();
+  a.remove(); //We have no use of the elem afterwards
+};
+
+//ELEMENTS
+const resetBtn = $('.form__reset');
+const submitBtn = $('.form__submit');
+const form = $('.form');
+const all = $('.all');
+const positive = $('.positive');
+const negative = $('.negative');
+const searchLabel = $('.search__label');
+const searchLabelIcon = $('.search__label i');
+const searchGroup = $('.search__group');
+const searchInput = $('.search__input');
+const resultImage = $('.contact__image');
+const exportData = $('.stats__description div', true);
+const uploadInput = $('.upload__input');
+
+/* On load add stats */
 const addStatistics = (stat, value) => {
   stat.innerHTML = value;
 };
@@ -45,16 +103,15 @@ resetBtn.addEventListener('click', () => {
 //get form data from user
 const getData = (ev) => {
   ev.preventDefault();
+  const elem = form.elements;
   const patientData = {};
-  for (let i = 0; i < form.elements.length; i++) {
-    if (form.elements[i].name === 'sex') {
-      patientData[form.elements[i].name] = form.elements.namedItem('sex')[0]
-        .checked
-        ? 'M'
-        : 'F';
+  for (let i = 0; i < elem.length; i++) {
+    if (elem[i].name === 'sex') {
+      patientData[elem[i].name] = elem.namedItem('sex')[0].checked ? 'M' : 'F';
     } else {
-      if (form.elements[i].name) {
-        patientData[form.elements[i].name] = form.elements[i].value;
+      //remove inputs with empty values
+      if (elem[i].name && elem[i].value.trim()) {
+        patientData[elem[i].name] = elem[i].value;
       }
     }
   }
@@ -62,7 +119,19 @@ const getData = (ev) => {
 };
 
 form.addEventListener('submit', (ev) => {
+  const file = uploadInput.files;
+  ev.preventDefault();
+  //don't make request for patient if file selected
+  if (file.length > 0) {
+    return uploadFile(file[0]);
+  }
   const data = getData(ev);
+  console.log(Object.keys(data));
+  //Make sure all fields are filled
+  if (Object.keys(data).length < 7) {
+    notify('Error: Please fill all the required fields!');
+    return;
+  }
   fetch('/generate', {
     method: 'POST',
     headers: {
@@ -72,23 +141,36 @@ form.addEventListener('submit', (ev) => {
   })
     .then((res) => res.json())
     .then((res) => {
-      console.log(res.qrcodeUrl);
+      if (res.msg) {
+        notify(res.msg);
+        return;
+      }
       form.reset();
-      notify(res.patientName, res.qrcodeUrl);
+      notify(
+        `${res.patientName} added successfully! Download PDF`,
+        res.qrcodeUrl
+      );
     });
 });
 
+//validate search input for downloading pdf
 searchInput.addEventListener('keyup', (ev) => {
-  validateSearch(ev);
+  validateSearchIcon(ev);
 });
-searchInput.addEventListener('paste', (ev) => {
-  validateSearch(ev);
+searchInput.addEventListener('focus', (ev) => {
+  setTimeout(() => {
+    validateSearchIcon(ev);
+  }, 1500);
+});
+searchInput.addEventListener('focusout', () => {
+  if (searchInput.value.trim() === '') {
+    closeSearch();
+  }
 });
 
-const validateSearch = (ev) => {
-  let regEx = new RegExp(/[A-Z]{1}[0-9]{8}[A-Z]{1}/);
-  let val = ev.target.value.trim();
-  if (regEx.test(val)) {
+const validateSearchIcon = (ev) => {
+  let val = ev.target.value.trim().toUpperCase();
+  if (validateSearchInput(val)) {
     searchLabelIcon.classList.remove('fa-times');
     searchLabelIcon.classList.add('fa-play');
   } else {
@@ -96,57 +178,22 @@ const validateSearch = (ev) => {
     searchLabelIcon.classList.add('fa-times');
   }
 };
-
-//#region  notifications
-
-const notify = (patientName, destination, isError) => {
-  Toastify({
-    text: `${patientName} added successfully! Download PDF`,
-    duration: 20000,
-    destination,
-    newWindow: true,
-    close: true,
-    gravity: 'top', // `top` or `bottom`
-    position: 'right', // `left`, `center` or `right`
-    stopOnFocus: true, // Prevents dismissing of toast on hover
-    style: {
-      background: 'linear-gradient(to right, #00b09b, #96c93d)',
-    },
-    onClick: function () {}, // Callback after click
-  }).showToast();
+const validateSearchInput = (val) => {
+  let regEx = new RegExp(/[A-Z]{1}[0-9]{8}[A-Z]{1}/);
+  return regEx.test(val) || val === 'ALL';
 };
 
-try {
-  const notifyUserFound = (patientName, destination, isError) => {
-    Toastify({
-      text: `${patientName} added successfully! Download PDF`,
-      selector: resultImage,
-      className: 'search__result',
-      duration: 200000,
-      destination,
-      newWindow: true,
-      close: true,
-      gravity: 'top', // `top` or `bottom`
-      position: 'center', // `left`, `center` or `right`
-      stopOnFocus: true, // Prevents dismissing of toast on hover
-      style: {
-        background: '#fff',
-        position: 'absolute',
-        top: '0px',
-        color: 'teal',
-      },
-      onClick: function () {}, // Callback after click
-    }).showToast();
-  };
-  // notifyUserFound('HI', 'HI');
-} catch (error) {
-  console.log(error);
-}
-
-//#endregion
-
 //Animate search input
-
+const openSearch = () => {
+  searchGroup.style.width = '80%';
+  searchLabelIcon.style.transform = 'rotate(360deg)';
+  searchInput.style.width = '100%';
+  searchInput.style.paddingLeft = '25px';
+  setTimeout(() => {
+    searchLabelIcon.classList.remove('fa-search');
+    searchLabelIcon.classList.add('fa-times');
+  }, 400);
+};
 const closeSearch = () => {
   searchInput.style.width = '0%';
   searchGroup.style.width = '60px';
@@ -158,51 +205,49 @@ const closeSearch = () => {
     searchLabelIcon.classList.add('fa-search');
   }, 200);
 };
-
-const openSearch = () => {
-  if (searchLabelIcon.classList.value.includes('fa-times')) {
-    return closeSearch();
-  }
-  if (searchLabelIcon.classList.value.includes('fa-play')) {
-    let val = searchInput.value.trim();
+const getPatient = (val) => {
+  if (validateSearchInput(val)) {
     fetch('/search', {
       method: 'post',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        patientId: val,
+        personalId: val,
       }),
     })
-      .then((res) => res.json())
       .then((res) => {
-        notify(res.patient_name, `/me/${res.patient_id}`);
-        console.log(res);
+        return val === 'ALL' ? res.blob() : res.json();
+      })
+      .then((res) => {
+        if (val === 'ALL') {
+          return downloadFile(res, 'all', 'zip');
+        }
+        res.msg
+          ? notifyPatientFound(`${val} ${res.msg}`)
+          : notifyPatientFound(
+              `${res.patient_name} tested, Download PDF!`,
+              `/me/${res.patient_id}`
+            );
       })
       .catch((err) => {
+        notify('There was an error! Please try again');
         console.error(err);
       });
   }
-  searchGroup.style.width = '80%';
-  searchLabelIcon.style.transform = 'rotate(360deg)';
-  searchInput.style.width = '100%';
-  searchInput.style.paddingLeft = '25px';
-  setTimeout(() => {
-    searchLabelIcon.classList.remove('fa-search');
-    searchLabelIcon.classList.add('fa-times');
-  }, 400);
 };
 searchLabel.addEventListener('click', (ev) => {
-  openSearch(ev);
-});
-
-searchInput.addEventListener('focusout', () => {
-  if (searchInput.value.trim() === '') {
-    closeSearch();
+  let val = searchInput.value.trim().toUpperCase();
+  if (searchLabelIcon.classList.value.includes('fa-times')) {
+    return closeSearch();
+  } else if (searchLabelIcon.classList.value.includes('fa-play')) {
+    getPatient(val);
+  } else {
+    openSearch(ev);
   }
 });
 
-const downloadData = (ev) => {
+const downloadExcelData = (ev) => {
   const filter = ev.target.dataset.filter;
   fetch(`/export`, {
     method: 'POST',
@@ -214,42 +259,48 @@ const downloadData = (ev) => {
     }),
   })
     .then((res) => res.blob())
-    .then((res) => downloadFile(res, filter))
+    .then((res) => downloadFile(res, filter, 'xlsx'))
     .catch((err) => {
       console.error(err);
     });
 };
 
+//download excel file when clicking on stats value
 Array.from(exportData, (el) => {
   el.addEventListener('click', (ev) => {
-    downloadData(ev);
+    downloadExcelData(ev);
   });
 });
 
-const downloadFile = (blob, filename) => {
-  var url = window.URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = `${filename}.xlsx`;
-  document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
-  a.click();
-  a.remove(); //We have no use of the elem afterwards
-};
-
 const uploadFile = (inputFile) => {
   const formData = new FormData();
+  //name(file) should be the same in server side
   formData.append('file', inputFile);
+  //TODO Loader
   fetch('/uploadFile', {
-    method: 'POST',
+    method: 'post',
     body: formData,
-  }).then((res) => {
-    //TODO send should be JSON
-    // res.json()
-    console.log(res);
-  });
+  })
+    .then((res) => {
+      //reset form validation
+      form.removeAttribute('novalidate');
+      uploadInput.value = '';
+      submitBtn.innerHTML = `<i class="fa fa-file-medical"></i> Insert patient`;
+      submitBtn.classList.remove('search__result');
+      return res.json();
+    })
+    .then((res) => notify(res.msg))
+    .catch((err) => console.log(err));
 };
 
 uploadInput.addEventListener('change', (ev) => {
-  submitBtn.innerHTML = `${ev.target.files[0].name}`;
-  console.log(ev.target.files[0]);
+  if (ev.target.files.length > 0) {
+    let fileName = ev.target.files[0].name;
+    //form can be submitted without filling other inputs
+    form.setAttribute('novalidate', true);
+    submitBtn.innerHTML = `<i class="fa fa-upload"></i> ${
+      fileName.length > 15 ? fileName.slice(0, 12) + '...' : fileName
+    }`;
+    submitBtn.classList.add('search__result');
+  }
 });

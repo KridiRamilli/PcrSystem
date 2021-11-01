@@ -1,5 +1,8 @@
-const ExcelJS = require('exceljs');
 const path = require('path');
+const fs = require('fs');
+
+const ExcelJS = require('exceljs');
+const archiver = require('archiver');
 
 const db = require('../db');
 
@@ -8,7 +11,7 @@ const generateExcel = async (filter) => {
   const date = new Date(Date.now());
   let filePath = path.join(
     __dirname,
-    `../../EXPORTS/patientData_${date.toDateString()}.xlsx`
+    `../../exports/patientData_${date.toDateString()}.xlsx`
   );
   workbook.creator = 'QKUM LAB';
   workbook.lastModifiedBy = 'Lab';
@@ -36,9 +39,6 @@ const generateExcel = async (filter) => {
     { header: 'Email', key: 'email' },
   ];
   switch (filter) {
-    case 'all':
-      rows = await db.getAllData();
-      break;
     case 'negative':
       rows = await db.getNegative();
       break;
@@ -46,7 +46,7 @@ const generateExcel = async (filter) => {
       rows = await db.getPositive();
       break;
     default:
-      console.log('Filter not known');
+      rows = await db.getAllData();
   }
   worksheet.columns.forEach((column) => {
     column.width = wideColumns.includes(column.key)
@@ -67,13 +67,33 @@ const excelToDb = async (fileBuffer) => {
   worksheet.eachRow((row) => {
     rows.push(row.values.slice(1));
   });
-  await db.addDataFromFile(rows);
+  await db.addDataFromFile(rows.slice(1));
   return true;
 };
 
-// excelToDb();
+const pdfToZip = () => {
+  return new Promise((resolve, reject) => {
+    let filePath = path.join(__dirname, '/pcrTests.zip');
+    const output = fs.createWriteStream(filePath);
+    const archive = archiver('zip', {
+      zlib: {
+        level: 9,
+      },
+    });
+    archive.pipe(output);
+    archive.on('error', (err) => {
+      reject(err);
+    });
+    archive.on('end', () => {
+      resolve(filePath);
+    });
+    archive.directory(path.join(__dirname, `../../pcr_tests`), 'PCR_TESTS');
+    archive.finalize();
+  });
+};
 
 module.exports = {
   generateExcel,
   excelToDb,
+  pdfToZip,
 };

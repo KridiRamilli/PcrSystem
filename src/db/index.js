@@ -18,7 +18,7 @@ const init = () => {
         age TEXT NOT NULL,
         personal_id TEXT NOT NULL PRIMARY KEY,
         accepted TEXT NOT NULL,
-        approved TEXT NOT NULL,
+        approved TEXT NOT NULL,  
         result TEXT NOT NULL,
         application_time TEXT NOT NULL,
         email TEXT NOT NULL
@@ -57,7 +57,7 @@ const addPatient = (patientData) => {
         reference + 1,
         sex,
         age,
-        personalId,
+        personalId.toUpperCase(),
         accepted,
         approved,
         result && result.toUpperCase(),
@@ -80,7 +80,6 @@ const getPatient = (personalId) => {
   return new Promise((resolve, reject) => {
     db.get(query, (err, row) => {
       if (err) {
-        console.error(err);
         return reject(err);
       }
       resolve(row);
@@ -149,6 +148,20 @@ const addDataFromFile = (rows) => {
   });
 };
 
+const getPatientResult = async () => {
+  const patients = await getAllData();
+  let pos = 0;
+  let neg = 0;
+  for (let i = 0; i < patients.length; i++) {
+    if (patients[i].result === 'POSITIVE') {
+      pos++;
+    } else {
+      neg++;
+    }
+  }
+  return { pos, neg };
+};
+
 const closeDb = () => {
   return new Promise((resolve, reject) => {
     db.close((err) => {
@@ -171,4 +184,5 @@ module.exports = {
   getPatient,
   getReference,
   addDataFromFile,
+  getPatientResult,
 };

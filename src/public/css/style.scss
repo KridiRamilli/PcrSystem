@@ -23,7 +23,7 @@
   &__body {
     width: 95vw;
     height: 75%;
-    max-width: 1150px;
+    max-width: 1200px;
     background-color: #fff;
     border-radius: 1rem;
     display: flex;
@@ -195,6 +195,7 @@
     cursor: pointer;
     color: #fff;
     font-size: 1rem;
+    outline: none;
     padding: 8px 1rem;
     background: #ff9966; /* fallback for old browsers */
     background: -webkit-linear-gradient(
@@ -251,6 +252,9 @@
       font-size: 1.1rem;
       font-weight: 100;
     }
+    & input {
+      outline: none;
+    }
     &__male {
       padding-right: 2rem;
     }
@@ -264,6 +268,7 @@
       padding: 7px;
       border: none;
       border-bottom: 1px solid #ccc;
+      outline: none;
     }
   }
   &__result {
@@ -277,15 +282,17 @@
       background-color: #fff;
       border: none;
       border-bottom: 1px solid #ccc;
+      outline: none;
     }
   }
 
   //Form Submit
   &__submit {
-    font-size: 1.2rem;
-    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    padding: 0.6rem 1.2rem;
     font-weight: 100;
     border: none;
+    outline: none;
     background: #43cea2; /* fallback for old browsers */
     background: -webkit-linear-gradient(
       to right,
@@ -312,6 +319,10 @@
       border-radius: 0%;
       box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px,
         rgba(0, 0, 0, 0.22) 0px 15px 12px;
+    }
+    & .fa {
+      margin-right: 5px;
+      font-size: 1.2rem;
     }
   }
   .upload__input {

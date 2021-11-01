@@ -20,7 +20,7 @@ const mail = (email, patientId, patientName) => {
     attachments: [
       {
         filename: `${fileName}.pdf`,
-        path: path.join(__dirname, `../../PCR_TESTS/${patientId}.pdf`),
+        path: path.join(__dirname, `../../pcr_tests/${patientId}.pdf`),
         contentType: 'application/pdf',
       },
     ],

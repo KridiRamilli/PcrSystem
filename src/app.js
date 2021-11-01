@@ -9,7 +9,7 @@ const db = require('./db');
 const mail = require('./mail');
 const exportData = require('./exportData');
 
-const { getAge, calcDate, generatePDF, getResult } = require('./utils');
+const { getAge, calcDate, generatePDF, logger } = require('./utils');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
 
 app.get('/me/:id', (req, res) => {
   const { id } = req.params;
-  let filePath = path.join(__dirname, '..', 'PCR_TESTS', `${id}.pdf`);
+  let filePath = path.join(__dirname, '..', 'pcr_tests', `${id}.pdf`);
   if (fs.existsSync(filePath)) {
     const fileStream = fs.createReadStream(filePath);
     res.setHeader('Content-Type', 'application/pdf');
@@ -38,7 +38,7 @@ app.get('/me/:id', (req, res) => {
 });
 
 app.get('/stats', async (req, res) => {
-  const result = await getResult();
+  const result = await db.getPatientResult();
   res.status(200).send(result);
 });
 
@@ -46,25 +46,35 @@ app.post('/export', async (req, res) => {
   const { filter } = req.body;
   let filePath = await exportData.generateExcel(filter);
   const fileStream = fs.createReadStream(filePath);
-  res.setHeader('Content-Type', 'application/vnd.ms-excel');
-  res.setHeader('Content-disposition', 'attachment;filename=myExcel.xls');
+  //TODO refactor so file is not corrupt
+  // res.setHeader('Content-Type', 'application/vnd.ms-excel');
+  // res.setHeader('Content-disposition', 'attachment;filename=myExcel.xls');
   return fileStream.pipe(res);
 });
 
 app.post('/search', async (req, res) => {
-  const { patientId } = req.body;
-  const patient = await db
-    .getPatient(patientId)
-    .catch(() => res.status(400).send('Patient not found'));
+  const { personalId } = req.body;
+  if (personalId === 'ALL') {
+    let zipPath = await exportData.pdfToZip();
+    const fileStream = fs.createReadStream(zipPath);
+    return fileStream.pipe(res);
+  }
+  const patient = await db.getPatient(personalId);
+  if (!patient) {
+    res.status(400).send({ msg: 'Error: Patient not found!' });
+  }
   res.status(201).send(patient);
 });
 
 app.post('/generate', async (req, res) => {
   const { name, lname, sex, birthday, result, personalId, email } = req.body;
+  if (Object.values(req.body).filter(Boolean).length < 7) {
+    return res.status(401).send({ msg: 'Error: Missing patient data!' });
+  }
   let id = uuidv4();
   let patientName = `${name} ${lname}`;
   let qrcodeUrl = `http://127.0.0.1:3000/me/${id}`;
-  let pdfPath = path.join(__dirname, '..', 'PCR_TESTS');
+  let pdfPath = path.join(__dirname, '..', 'pcr_tests');
   const { age, born } = getAge(birthday);
   const { approved, accepted } = calcDate();
   const reference = await db.getReference();
@@ -86,13 +96,14 @@ app.post('/generate', async (req, res) => {
     email,
   };
   db.addPatient(newPatient).catch((err) => {
-    if (err) {
-      console.error(err);
-      res.status(401).send('User not inserted in DB');
-      return;
-    }
+    logger.error(err);
+    res.status(401).send({ msg: 'Error: Patient not inserted in DB!' });
+    return;
   });
-  generatePDF(newPatient);
+  generatePDF(newPatient).catch((err) => {
+    logger.error(err);
+    res.status(401).send({ msg: 'Error: PDF not generated!' });
+  });
   res.status(200).send({ patientName, qrcodeUrl });
 });
 
@@ -100,9 +111,10 @@ app.post('/uploadFile', upload.single('file'), async (req, res) => {
   const fileBuffer = req.file.buffer;
   try {
     await exportData.excelToDb(fileBuffer);
-    res.atatus(200).send('Records inserted in DB!');
+    res.status(200).send({ msg: 'Records inserted in DB!' });
   } catch (error) {
-    res.status(401).send('Error in inserting records!');
+    logger.error(error);
+    res.status(401).send({ msg: 'Error: File not uploaded!' });
   }
 });
 
@@ -120,9 +132,15 @@ db.init()
 //#endregion
 const closeDb = () => {
   db.closeDb()
-    .then((res) => console.log(res))
-    .catch((err) => console.error(err));
+    .then((res) => logger.info(res))
+    .catch((err) => logger.error(err));
 };
+
+process.on('uncaughtException', (err) => {
+  logger.error('UNCAUGHT EXCEPTION! Shutting down....');
+  logger.error(err);
+  process.exit(1);
+});
 
 process.on('SIGINT', closeDb);
 process.on('SIGTERM', closeDb);

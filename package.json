@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "pm2 src/app.js",
-    "dev": "nodemon src/app.js",
+    "dev": "concurrently \"nodemon src/app.js\" \"npm run sass\"",
     "sass": "sass --watch src/public/css/style.scss:src/public/css/style.css",
     "lint": "eslint . --ext .js",
     "test": "jest",
@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "archiver": "^5.3.0",
     "dotenv": "^10.0.0",
     "exceljs": "^4.3.0",
     "express": "^4.17.1",
@@ -26,7 +27,8 @@
     "pm2": "^5.1.2",
     "qrcode": "^1.4.4",
     "sqlite3": "^5.0.2",
-    "uuid": "^3.4.0"
+    "uuid": "^3.4.0",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "eslint": "^7.32.0",

@@ -55,10 +55,10 @@
                   id="searchId"
                   type="search"
                   class="search__input"
-                  placeholder="ID (ex: I45798457B)"
+                  placeholder="ID (ex: I45798457B) or (all)"
                 />
-                <label class="search__label" for="searchId"
-                  ><i class="fas fa-search"></i
+                <label class="search__label" for="searchId" data-filter="pdf"
+                  ><i class="fas fa-search" data-filter="pdf"></i
                 ></label>
               </div>
             </div>
@@ -67,7 +67,12 @@
             <form class="upload" action=""></form>
           </div>
         </div>
-        <form class="form" action="">
+        <form
+          class="form"
+          action=""
+          enctype="multipart/form-data"
+          method="post"
+        >
           <div class="form__row reset">
             <input type="button" value="Reset" class="form__reset" />
           </div>
@@ -173,19 +178,22 @@
               ><i class="fas fa-file-excel"></i
             ></label>
             <input
-              accept=".xlsx,application/vnd.ms-excel"
+              accept=".xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               class="upload__input"
               type="file"
               name="file"
               id="file"
             />
-            <input
+
+            <button
               class="form__submit"
               type="submit"
               name=""
-              id=""
+              id="submit"
               value="Insert patient"
-            />
+            >
+              <i class="fa fa-file-medical"></i> Insert patient
+            </button>
           </div>
         </form>
       </div>
