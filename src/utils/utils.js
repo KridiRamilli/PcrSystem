@@ -52,7 +52,6 @@ const generatePDF = async (patientData) => {
   const {
     patientId,
     qrcodeUrl,
-    pdfPath,
     personalId,
     born,
     sex,
@@ -60,7 +59,7 @@ const generatePDF = async (patientData) => {
     email,
     patientName,
   } = patientData;
-
+  let pdfPath = path.join(__dirname, '..', '..', 'pcr_tests');
   const patientFromDb = await db.getPatient(personalId);
   patientFromDb['sex_age'] = `${sex} / ${born}-${age} vjec`;
   const pdfDoc = await PDFDocument.load(pcrTemplate);
@@ -89,7 +88,7 @@ const generatePDF = async (patientData) => {
   form.flatten();
   const pdfBytes = await pdfDoc.save();
   fs.writeFileSync(path.join(pdfPath, `${patientId}.pdf`), pdfBytes);
-  // mail(email, patientId, patientName);
+  mail(email, patientId, patientName);
 };
 
 module.exports = {

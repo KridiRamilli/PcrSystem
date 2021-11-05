@@ -3,6 +3,7 @@ const fs = require('fs');
 
 const ExcelJS = require('exceljs');
 const archiver = require('archiver');
+const { v4: uuidv4 } = require('uuid');
 
 const db = require('../db');
 
@@ -30,7 +31,7 @@ const generateExcel = async (filter) => {
     { header: 'PatientName', key: 'patient_name' },
     { header: 'Reference', key: 'reference' },
     { header: 'Sex', key: 'sex' },
-    { header: 'Age', key: 'age' },
+    { header: 'Birthday', key: 'birthday' },
     { header: 'PersonalId', key: 'personal_id' },
     { header: 'Accepted', key: 'accepted' },
     { header: 'Approved', key: 'approved' },
@@ -62,11 +63,17 @@ const generateExcel = async (filter) => {
 const excelToDb = async (fileBuffer) => {
   const workbook = new ExcelJS.Workbook();
   const rows = [];
+  let reference = await db.getReference();
   await workbook.xlsx.load(fileBuffer);
   const worksheet = workbook.getWorksheet(1);
   worksheet.eachRow((row) => {
-    rows.push(row.values.slice(1));
+    let { values } = row;
+    values[0] = uuidv4();
+    values.splice(2, 0, reference++);
+    rows.push(values);
   });
+
+  //slice(1) to remove double headers
   await db.addDataFromFile(rows.slice(1));
   return true;
 };

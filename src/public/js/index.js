@@ -126,7 +126,6 @@ form.addEventListener('submit', (ev) => {
     return uploadFile(file[0]);
   }
   const data = getData(ev);
-  console.log(Object.keys(data));
   //Make sure all fields are filled
   if (Object.keys(data).length < 7) {
     notify('Error: Please fill all the required fields!');
@@ -157,10 +156,13 @@ form.addEventListener('submit', (ev) => {
 searchInput.addEventListener('keyup', (ev) => {
   validateSearchIcon(ev);
 });
+searchInput.addEventListener('click', (ev) => {
+  validateSearchIcon(ev);
+});
 searchInput.addEventListener('focus', (ev) => {
   setTimeout(() => {
     validateSearchIcon(ev);
-  }, 1500);
+  }, 1200);
 });
 searchInput.addEventListener('focusout', () => {
   if (searchInput.value.trim() === '') {
@@ -276,6 +278,7 @@ const uploadFile = (inputFile) => {
   const formData = new FormData();
   //name(file) should be the same in server side
   formData.append('file', inputFile);
+  console.log(formData);
   //TODO Loader
   fetch('/uploadFile', {
     method: 'post',

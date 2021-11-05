@@ -71,23 +71,27 @@ app.post('/generate', async (req, res) => {
   if (Object.values(req.body).filter(Boolean).length < 7) {
     return res.status(401).send({ msg: 'Error: Missing patient data!' });
   }
+  const existingPatient = await db.getPatient(personalId);
+  if (existingPatient['patient_id']) {
+    return res
+      .status(400)
+      .send({ msg: `Error: Patient with ID:${personalId} exists in DB` });
+  }
   let id = uuidv4();
-  let patientName = `${name} ${lname}`;
   let qrcodeUrl = `http://127.0.0.1:3000/me/${id}`;
-  let pdfPath = path.join(__dirname, '..', 'pcr_tests');
+  let patientName = `${name} ${lname}`;
   const { age, born } = getAge(birthday);
   const { approved, accepted } = calcDate();
   const reference = await db.getReference();
   const newPatient = {
     patientId: id,
     patientName,
-    qrcodeUrl,
-    pdfPath,
     result,
+    qrcodeUrl,
     reference: reference || 1,
     personalId,
-    path,
     sex,
+    birthday,
     age,
     born,
     approved,
@@ -95,14 +99,16 @@ app.post('/generate', async (req, res) => {
     applicationTime: approved,
     email,
   };
-  db.addPatient(newPatient).catch((err) => {
+  //TODO
+  await db.addPatient(newPatient).catch((err) => {
     logger.error(err);
     res.status(401).send({ msg: 'Error: Patient not inserted in DB!' });
     return;
   });
-  generatePDF(newPatient).catch((err) => {
+  await generatePDF(newPatient).catch((err) => {
+    db.deletePatient(newPatient['patientId']);
     logger.error(err);
-    res.status(401).send({ msg: 'Error: PDF not generated!' });
+    res.status(401).send({ msg: 'Error: PCR TEST not generated!' });
   });
   res.status(200).send({ patientName, qrcodeUrl });
 });

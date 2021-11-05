@@ -11,11 +11,11 @@ const init = () => {
     });
     db.run(
       `CREATE TABLE IF NOT EXISTS patients (
-        patient_id INTEGER NOT NULL,
+        patient_id TEXT NOT NULL,
         patient_name TEXT NOT NULL,
         reference INTEGER NOT NULL,
         sex TEXT NOT NULL,
-        age TEXT NOT NULL,
+        birthday TEXT NOT NULL,
         personal_id TEXT NOT NULL PRIMARY KEY,
         accepted TEXT NOT NULL,
         approved TEXT NOT NULL,  
@@ -39,7 +39,7 @@ const addPatient = (patientData) => {
     patientName,
     reference,
     sex,
-    age,
+    birthday,
     personalId,
     accepted,
     approved,
@@ -56,7 +56,7 @@ const addPatient = (patientData) => {
         patientName.toUpperCase(),
         reference + 1,
         sex,
-        age,
+        birthday,
         personalId.toUpperCase(),
         accepted,
         approved,
@@ -72,6 +72,18 @@ const addPatient = (patientData) => {
         return resolve();
       }
     );
+  });
+};
+
+const deletePatient = (personalId) => {
+  let query = `DELETE FROM patients WHERE personal_id="${personalId}"`;
+  return new Promise((resolve, reject) => {
+    db.run(query, (err, row) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(row);
+    });
   });
 };
 
@@ -130,6 +142,7 @@ const getReference = () => {
   });
 };
 
+//TODO CREATE PDF FILES FOR USERS
 const addDataFromFile = (rows) => {
   return new Promise((resolve, reject) => {
     let query = db.prepare(
@@ -178,6 +191,7 @@ module.exports = {
   init,
   closeDb,
   addPatient,
+  deletePatient,
   getAllData,
   getNegative,
   getPositive,
