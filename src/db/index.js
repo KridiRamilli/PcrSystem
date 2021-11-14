@@ -16,12 +16,12 @@ const init = () => {
         reference INTEGER NOT NULL,
         sex TEXT NOT NULL,
         birthday TEXT NOT NULL,
-        personal_id TEXT NOT NULL PRIMARY KEY,
+        personal_id TEXT NOT NULL PRIMARY KEY COLLATE NOCASE,
         accepted TEXT NOT NULL,
         approved TEXT NOT NULL,  
         result TEXT NOT NULL,
         application_time TEXT NOT NULL,
-        email TEXT NOT NULL
+        email TEXT NOT NULL UNIQUE
       )`,
       (err) => {
         if (err) {
@@ -66,10 +66,9 @@ const addPatient = (patientData) => {
       ],
       (err) => {
         if (err) {
-          console.error(err);
           return reject(err);
         }
-        return resolve();
+        resolve(true);
       }
     );
   });
@@ -78,11 +77,24 @@ const addPatient = (patientData) => {
 const deletePatient = (personalId) => {
   let query = `DELETE FROM patients WHERE personal_id="${personalId}"`;
   return new Promise((resolve, reject) => {
-    db.run(query, (err, row) => {
+    db.run(query, (err) => {
       if (err) {
         return reject(err);
       }
-      resolve(row);
+      resolve(this.changes);
+    });
+  });
+};
+
+const updatePatient = (patientData) => {
+  const { patientName, sex, birthday, personalId, result, email } = patientData;
+  let query = `UPDATE patients SET patient_name="${patientName}",sex="${sex}",birthday="${birthday}",result="${result}",email="${email}" WHERE personal_id="${personalId}"`;
+  return new Promise((resolve, reject) => {
+    db.run(query, (err) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(true);
     });
   });
 };
@@ -166,7 +178,7 @@ const getPatientResult = async () => {
   let pos = 0;
   let neg = 0;
   for (let i = 0; i < patients.length; i++) {
-    if (patients[i].result === 'POSITIVE') {
+    if (patients[i].result.toUpperCase() === 'POSITIVE') {
       pos++;
     } else {
       neg++;
@@ -192,6 +204,7 @@ module.exports = {
   closeDb,
   addPatient,
   deletePatient,
+  updatePatient,
   getAllData,
   getNegative,
   getPositive,

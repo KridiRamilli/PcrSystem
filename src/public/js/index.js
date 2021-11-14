@@ -78,6 +78,8 @@ const searchInput = $('.search__input');
 const resultImage = $('.contact__image');
 const exportData = $('.stats__description div', true);
 const uploadInput = $('.upload__input');
+const updateCheck = $('.update__checkbox');
+const updateTitle = $('.update__title');
 
 /* On load add stats */
 const addStatistics = (stat, value) => {
@@ -120,6 +122,7 @@ const getData = (ev) => {
 
 form.addEventListener('submit', (ev) => {
   const file = uploadInput.files;
+  const isUpdate = updateCheck.checked;
   ev.preventDefault();
   //don't make request for patient if file selected
   if (file.length > 0) {
@@ -129,6 +132,10 @@ form.addEventListener('submit', (ev) => {
   //Make sure all fields are filled
   if (Object.keys(data).length < 7) {
     notify('Error: Please fill all the required fields!');
+    return;
+  }
+  if (isUpdate) {
+    updatePatient(data);
     return;
   }
   fetch('/generate', {
@@ -294,6 +301,21 @@ const uploadFile = (inputFile) => {
     })
     .then((res) => notify(res.msg))
     .catch((err) => console.log(err));
+};
+
+const updatePatient = (patientData) => {
+  fetch('/update', {
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(patientData),
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      form.reset();
+      notify(res.msg);
+    });
 };
 
 uploadInput.addEventListener('change', (ev) => {

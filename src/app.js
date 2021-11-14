@@ -9,7 +9,13 @@ const db = require('./db');
 const mail = require('./mail');
 const exportData = require('./exportData');
 
-const { getAge, calcDate, generatePDF, logger } = require('./utils');
+const {
+  getAge,
+  calcDate,
+  generatePDF,
+  logger,
+  missingData,
+} = require('./utils');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -68,11 +74,12 @@ app.post('/search', async (req, res) => {
 
 app.post('/generate', async (req, res) => {
   const { name, lname, sex, birthday, result, personalId, email } = req.body;
-  if (Object.values(req.body).filter(Boolean).length < 7) {
+  if (missingData(req.body)) {
     return res.status(401).send({ msg: 'Error: Missing patient data!' });
   }
   const existingPatient = await db.getPatient(personalId);
-  if (existingPatient['patient_id']) {
+  console.log(existingPatient);
+  if (existingPatient) {
     return res
       .status(400)
       .send({ msg: `Error: Patient with ID:${personalId} exists in DB` });
@@ -100,11 +107,12 @@ app.post('/generate', async (req, res) => {
     email,
   };
   //TODO
-  await db.addPatient(newPatient).catch((err) => {
+  let success = await db.addPatient(newPatient).catch((err) => {
     logger.error(err);
     res.status(401).send({ msg: 'Error: Patient not inserted in DB!' });
     return;
   });
+
   await generatePDF(newPatient).catch((err) => {
     db.deletePatient(newPatient['patientId']);
     logger.error(err);
@@ -121,6 +129,40 @@ app.post('/uploadFile', upload.single('file'), async (req, res) => {
   } catch (error) {
     logger.error(error);
     res.status(401).send({ msg: 'Error: File not uploaded!' });
+  }
+});
+
+app.post('/update', async (req, res) => {
+  const { name, lname, sex, birthday, result, personalId, email } = req.body;
+  let isPatientInDb = await db.getPatient(personalId);
+  if (!isPatientInDb) {
+    res.status(401).send({
+      msg: 'Error: Patient not found in DB',
+    });
+    return;
+  }
+  if (missingData(req.body)) {
+    return res.status(401).send({ msg: 'Error: Missing patient data!' });
+  }
+  let patientName = `${name} ${lname}`;
+  const patientData = {
+    patientName,
+    sex,
+    birthday,
+    result: result.toUpperCase(),
+    personalId,
+    email,
+  };
+  let success = await db.updatePatient(patientData).catch((err) => {
+    logger.error(err);
+    res.status(400).send({
+      msg: 'Error: Patient not Updated!',
+    });
+  });
+  if (success) {
+    res.status(200).send({
+      msg: `Patient ${personalId} updated!`,
+    });
   }
 });
 

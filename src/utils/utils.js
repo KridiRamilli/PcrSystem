@@ -88,11 +88,16 @@ const generatePDF = async (patientData) => {
   form.flatten();
   const pdfBytes = await pdfDoc.save();
   fs.writeFileSync(path.join(pdfPath, `${patientId}.pdf`), pdfBytes);
-  mail(email, patientId, patientName);
+  // mail(email, patientId, patientName);
+};
+
+const missingData = (body) => {
+  return Object.values(body).filter(Boolean).length < 7;
 };
 
 module.exports = {
   generatePDF,
   getAge,
   calcDate,
+  missingData,
 };
