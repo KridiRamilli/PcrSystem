@@ -7,6 +7,9 @@
   <img src="https://img.shields.io/badge/QR-Code-success" />
   <img src="https://img.shields.io/badge/License-MIT-orange" />
 </p>
+<p align="center">
+  <img src="src/public/assets/pcr.png" />
+  </p>
 
 A lightweight **PCR Test Management System** built with **Node.js** and **Express**.
 
